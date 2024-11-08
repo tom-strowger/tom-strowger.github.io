@@ -1,0 +1,184 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="script.js"></script>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Nunito', sans-serif;
+      }
+    </style>
+    <title>Tom Strowger</title>
+</head>
+<body onload="setsizes()" onresize="setsizes()">
+
+    <div class="container">
+        <h1>Physarum simulation</h1>
+
+        <p style="font-style: italic;"><a href="index.html"> << home </a></p>
+
+        <p>Physarum polycephalum is a slime mold that grows to form efficient transport networks, 
+            solving the shortest path problem. Simulations of it can create pleasing patterns
+            somewhat similar to Conway's Game of Life, both demonstrating emergent behaviour where a 
+            simple set of rules applied to many individual cells or particles results in
+            complex behaviours emerging. </p>
+        
+        <!-- The placeholder is 1px transparent -->
+        <img 
+            src="images/physarum-800x800-15s-a.gif" 
+            alt="Physarym simulation" 
+            style="
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center;
+                width: 100%;
+                max-width:600px;
+                height: auto;"
+            class="centre"
+            loading="lazy">
+
+        <p>These captures are taken from a simulation I wrote in Rust using WebGPU. 
+            Using a GPU it is possible to simulate millions of particles in real-time.
+            The simulation is parameterised, so many different variations are possible.
+            
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            <!-- The placeholder is 1px transparent -->
+            <img 
+                src="images/physarum-800x800-5s-c.gif" 
+                alt="Physarym simulation" 
+                style="
+                    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+                    background-repeat: no-repeat;
+                    background-size: cover;
+                    background-position: center;
+                    width: 100%;
+                    max-width:600px;
+                    height: auto;"
+                class="centre"
+                loading="lazy">
+
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            <!-- The placeholder is 1px transparent -->
+            <img 
+            src="images/physarum-800x800-5s-d.gif" 
+            alt="Physarym simulation" 
+            style="
+                background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+                background-repeat: no-repeat;
+                background-size: cover;
+                background-position: center;
+                width: 100%;
+                max-width:600px;
+                height: auto;"
+            class="centre"
+            loading="lazy">
+
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+
+            
+        </p>
+
+        <h2>Implementation</h2>
+        <p>
+            There are many "agents" spread throughout a 2D world.  Each agent has a position (x and y) and a 
+            heading (angle) and is moving at a constant speed. Each time step every agent senses the world 
+            around it, detecting the concentration of a chemical left by other agents, and then updates its 
+            heading to turn towards higher concentrations of the chemical. Agents then deposit the chemical 
+            at their current position which diffuses and decays over time.
+            <br/>
+            <br/>
+            Over many time steps the agents form a network of paths that connect to form a transport network.
+            In the real world, physarum has been used to 
+            <a href="https://www.wired.com/2010/01/slime-mold-grows-network-just-like-tokyo-rail-system/">validate the Tokyo metro network</a> 
+            (the power of slime!)
+            <br/>
+            <br/>
+            In the simulation the agents are updated in parallel using compute shaders, allowing millions to
+            be simulated in realtime on my M2 MacBook Air. The world that they sense is stored in a texture with
+            each texel containing the concentration of the chemical at that position.
+
+            <br/>
+        </p>
+
+        <h3>Run in browser</h3>
+        <p>
+            The simulation can be run in the browser by clicking <a href="physarum-rust/index.html">here</a>
+            (WebGPU is required, currenly this is only on desktop using the latest Chrome).
+        </p>
+
+        <h2>Tools</h2>
+        <ul>
+            <li>
+                <a href="https://www.rust-lang.org/">Rust</a><br>
+                I work a lot in C++ but have adopted a personal philosophy to not use it for new projects.  C++
+                has done well but it will be eventually replaced by more modern languages. 
+                Rust has many improvements on C++ making it quicker to write and safer to use one you grasp the basics.
+                I'd recommend <a href="https://exercism.org/tracks/rust">exercism</a> if you'd like to make the switch.
+            </li>
+            <li>
+                <a href="https://wgpu.rs/">wgpu</a><br>
+                A graphics library for Rust based upon the WebGPU API, very low level. If you compile to WebAssembly
+                it can run in the browser.
+            </li>
+        </ul>
+
+        <h2>Future ideas</h2>
+        <ul>
+            <li>Runs of the simulation usually result in agents clumping up at a decreasing number of positions, because
+                there is no mechanism to prevent this. This could either be done by allowing only one agent per
+                texel, or by adding a repulsion force to very high chemical concentrations.
+            </li>
+            <li>Higher resolution simulations, currently it is limited to the texture size limit.  
+                This can probably be overcome by using multiple textures to represent the 2D world.
+            </li>
+            <li>Feeding simulation input and getting output. I've played with encouraging the agents to certain areas
+                and not others but this has been pretty crude so far:
+                <br>
+                <img 
+                src="images/physarum-800x145-e.gif" 
+                alt="Physarym simulation" 
+                style="
+                    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+                    background-repeat: no-repeat;
+                    background-size: cover;
+                    background-position: center;
+                    width: 100%;
+                    max-width:600px;
+                    height: auto;"
+                class="centre"
+                loading="lazy">
+            </li>
+        </ul>
+
+
+
+        <h2>External links</h2>
+
+        <ul>
+            <li>
+                <a href="https://uwe-repository.worktribe.com/output/980579/characteristics-of-pattern-formation-and-evolution-in-approximations-of-physarum-transport-networks">Characteristics of pattern formation and evolution in approximations of physarum transport networks</a>
+                - a paper describing the operation of the simulation.
+            </li>
+            <li>
+                <a href="https://cargocollective.com/sagejenson/physarum">Sage Jenson's work </a>
+                on a physarum simulation.
+            </li>
+
+        </ul>
+    </div>
+</body></html>
